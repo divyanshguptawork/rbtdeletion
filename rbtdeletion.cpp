@@ -181,7 +181,49 @@ private:
         if (x) x->color = BLACK;
     }
   
-  
+    void deleteNode(Node* z) {
+        Node* x;
+        Node* y = z;
+        Color y_original_color = y->color;
+
+        if (z->left == nullptr) {
+            x = z->right;
+            rbTransplant(z, z->right);
+        } else if (z->right == nullptr) {
+            x = z->left;
+            rbTransplant(z, z->left);
+        } else {
+            y = minimum(z->right); // Successor logic
+            y_original_color = y->color;
+            x = y->right;
+            if (y->parent == z) {
+                if (x) x->parent = y;
+            } else {
+                rbTransplant(y, y->right);
+                y->right = z->right;
+                y->right->parent = y;
+            }
+            rbTransplant(z, y);
+            y->left = z->left;
+            y->left->parent = y;
+            y->color = z->color;
+        }
+
+        // Case 1: If deleted node was red, no fix needed. 
+        // If it was black, we created a Double Black.
+        if (y_original_color == BLACK) {
+            fixDelete(x);
+        }
+        delete z;
+    }
+
+    void rbTransplant(Node* u, Node* v) {
+        if (u->parent == nullptr) root = v;
+        else if (u == u->parent->left) u->parent->left = v;
+        else u->parent->right = v;
+        if (v != nullptr) v->parent = u->parent;
+    }
+
     // Recursive helper for visual printing
     void printHelper(Node* n, int space) {
         if (n == nullptr) return;
@@ -258,44 +300,52 @@ bool search(int key) {
         cout << "Value " << data << " removed." << endl;
     }
 
-
 int main() {
     RedBlackTree rbt;
     int choice;
     
     while (true) {
-        cout << "\nmenu" << endl;
-        cout << "1. Add Single Number\n2. Read Numbers from File\n3. Print Tree\n4. Exit" << endl;
+        cout << "1. Add Number\n2. Read from File\n3. Search\n4. Remove Number\n5. Print Tree\n6. Exit" << endl;
         cout << "Choice: ";
         
         if (!(cin >> choice)) break;
         
         if (choice == 1) {
             int val;
-            cout << "enter number (1-999): ";
+            cout << "Enter number: ";
             cin >> val;
             rbt.insert(val);
         } else if (choice == 2) {
             string filename;
-            cout << "enter filename (e.g., input.txt): ";
+            cout << "Enter filename: ";
             cin >> filename;
             ifstream file(filename);
             if (!file) {
-                cout << "error: could not open file." << endl;
+                cout << "Error opening file." << endl;
                 continue;
             }
             int val;
             while (file >> val) rbt.insert(val);
-            cout << "File data processed successfully." << endl;
+            cout << "Processed." << endl;
         } else if (choice == 3) {
-            cout << "\ntree" << endl;
-            rbt.display();
+            int val;
+            cout << "Enter number to search: ";
+            cin >> val;
+            if (rbt.search(val)) cout << "Found!" << endl;
+            else cout << "Not in tree." << endl;
         } else if (choice == 4) {
-            cout << "exiting program..." << endl;
+            int val;
+            cout << "Enter number to remove: ";
+            cin >> val;
+            rbt.remove(val);
+        } else if (choice == 5) {
+            rbt.display();
+        } else if (choice == 6) {
             break;
         } else {
-            cout << "try again, incorrect option" << endl;
+            cout << "Invalid option." << endl;
         }
     }
     return 0;
 }
+
