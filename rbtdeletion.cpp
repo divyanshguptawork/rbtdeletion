@@ -6,7 +6,6 @@
 
 using namespace std;
 
-// Node color enumeration
 enum Color { RED, BLACK };
 
 struct Node {
@@ -21,7 +20,6 @@ class RedBlackTree {
 private:
     Node* root;
 
-    // Standard Left Rotation: Moves nodes to maintain balance while preserving BST order
     void rotateLeft(Node* x) {
         Node* y = x->right;
         x->right = y->left;
@@ -34,7 +32,6 @@ private:
         x->parent = y;
     }
 
-    // Standard Right Rotation: Essential for fixing "Line" cases in RB-Trees
     void rotateRight(Node* x) {
         Node* y = x->left;
         x->left = y->right;
@@ -47,57 +44,49 @@ private:
         x->parent = y;
     }
 
-    // This function enforces the 5 Red-Black Tree rules after an insertion
     void fixInsert(Node* k) {
         while (k != root && k->parent->color == RED) {
             if (k->parent == k->parent->parent->left) {
-                Node* u = k->parent->parent->right; // The Uncle node
-                
-                // Case 1: Uncle is Red (Recolor only)
+                Node* u = k->parent->parent->right; 
                 if (u != nullptr && u->color == RED) {
                     u->color = BLACK;
                     k->parent->color = BLACK;
                     k->parent->parent->color = RED;
                     k = k->parent->parent;
                 } else {
-                    // Case 2: Uncle is Black (Triangle shape) -> Convert to Line
                     if (k == k->parent->right) {
                         k = k->parent;
                         rotateLeft(k);
                     }
-                    // Case 3: Uncle is Black (Line shape) -> Rotate & Recolor
                     k->parent->color = BLACK;
                     k->parent->parent->color = RED;
                     rotateRight(k->parent->parent);
                 }
             } else {
-                Node* u = k->parent->parent->left; // The Uncle node
-                
-                // Case 1: Uncle is Red
+                Node* u = k->parent->parent->left;
                 if (u != nullptr && u->color == RED) {
                     u->color = BLACK;
                     k->parent->color = BLACK;
                     k->parent->parent->color = RED;
-                    k = k->parent->parent;
+                    k = k->parent;
+                    k = k->parent;
                 } else {
-                    // Case 2: Uncle is Black (Triangle shape)
                     if (k == k->parent->left) {
                         k = k->parent;
                         rotateRight(k);
                     }
-                    // Case 3: Uncle is Black (Line shape)
                     k->parent->color = BLACK;
                     k->parent->parent->color = RED;
                     rotateLeft(k->parent->parent);
                 }
             }
         }
-        root->color = BLACK; // Rule: Root must always be Black
+        root->color = BLACK;
     }
 
-  // deletion logic (6 cases)
-  // helpter to find the sibling of a node
-   Node* getSibling(Node* n) {
+    // DELETION LOGIC (Cases 1-6)
+    // Helper to find the sibling of a node
+    Node* getSibling(Node* n) {
         if (n->parent == nullptr) return nullptr;
         if (n == n->parent->left) return n->parent->right;
         return n->parent->left;
@@ -109,7 +98,7 @@ private:
         return node;
     }
 
-  void fixDelete(Node* x) {
+    void fixDelete(Node* x) {
         while (x != root && (x == nullptr || x->color == BLACK)) {
             Node* sibling = getSibling(x);
             Node* parent = x->parent;
@@ -131,7 +120,7 @@ private:
                         parent->color = BLACK;
                         return; // Done
                     }
-		    x = parent; // Move DB up (Case 3c)
+                    x = parent; // Move DB up (Case 3c)
                 } else {
                     // Case 5: Sibling's far child is black, near is red
                     if (!sibling->right || sibling->right->color == BLACK) {
@@ -147,7 +136,7 @@ private:
                     rotateLeft(parent);
                     return;
                 }
- } else { // Symmetric for right side
+            } else { // Symmetric for right side
                 if (sibling && sibling->color == RED) {
                     sibling->color = BLACK;
                     parent->color = RED;
@@ -180,7 +169,7 @@ private:
         }
         if (x) x->color = BLACK;
     }
-  
+
     void deleteNode(Node* z) {
         Node* x;
         Node* y = z;
@@ -224,7 +213,6 @@ private:
         if (v != nullptr) v->parent = u->parent;
     }
 
-    // Recursive helper for visual printing
     void printHelper(Node* n, int space) {
         if (n == nullptr) return;
         space += 10;
@@ -243,7 +231,6 @@ public:
         Node* y = nullptr;
         Node* x = root;
 
-        // Perform standard BST insertion
         while (x != nullptr) {
             y = x;
             if (node->data < x->data) x = x->left;
@@ -255,26 +242,16 @@ public:
         else if (node->data < y->data) y->left = node;
         else y->right = node;
 
-        // If the new node is root, color it black and return
         if (node->parent == nullptr) {
             node->color = BLACK;
             return;
         }
-        
-        // If grandparent doesn't exist, no need to fix properties
         if (node->parent->parent == nullptr) return;
 
-        // Fix the tree to maintain RB properties
         fixInsert(node);
     }
 
-    void display() {
-        if (root == nullptr) cout << "The tree is currently empty." << endl;
-        else printHelper(root, 0);
-    }
-};
-
-bool search(int key) {
+    bool search(int key) {
         Node* current = root;
         while (current != nullptr) {
             if (key == current->data) return true;
@@ -282,7 +259,7 @@ bool search(int key) {
             else current = current->right;
         }
         return false;
-}
+    }
 
     void remove(int data) {
         Node* z = root;
@@ -299,6 +276,12 @@ bool search(int key) {
         deleteNode(z);
         cout << "Value " << data << " removed." << endl;
     }
+
+    void display() {
+        if (root == nullptr) cout << "The tree is currently empty." << endl;
+        else printHelper(root, 0);
+    }
+};
 
 int main() {
     RedBlackTree rbt;
@@ -348,4 +331,6 @@ int main() {
     }
     return 0;
 }
+
+
 
