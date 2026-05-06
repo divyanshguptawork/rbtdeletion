@@ -145,6 +145,15 @@ public:
     }
 };
 
+bool search(int key) {
+        Node* current = root;
+        while (current != nullptr) {
+            if (key == current->data) return true;
+            if (key < current->data) current = current->left;
+            else current = current->right;
+        }
+        return false;
+
 int main() {
     RedBlackTree rbt;
     int choice;
