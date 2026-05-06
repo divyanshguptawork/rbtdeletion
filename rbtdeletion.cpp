@@ -95,6 +95,93 @@ private:
         root->color = BLACK; // Rule: Root must always be Black
     }
 
+  // deletion logic (6 cases)
+  // helpter to find the sibling of a node
+   Node* getSibling(Node* n) {
+        if (n->parent == nullptr) return nullptr;
+        if (n == n->parent->left) return n->parent->right;
+        return n->parent->left;
+    }
+
+    // Standard BST Successor finding
+    Node* minimum(Node* node) {
+        while (node->left != nullptr) node = node->left;
+        return node;
+    }
+
+  void fixDelete(Node* x) {
+        while (x != root && (x == nullptr || x->color == BLACK)) {
+            Node* sibling = getSibling(x);
+            Node* parent = x->parent;
+
+            if (x == parent->left) {
+                // Case 4: Sibling is Red
+                if (sibling && sibling->color == RED) {
+                    sibling->color = BLACK;
+                    parent->color = RED;
+                    rotateLeft(parent);
+                    sibling = parent->right;
+                }
+
+                // Case 3: Sibling and its children are Black
+                if ((!sibling->left || sibling->left->color == BLACK) &&
+                    (!sibling->right || sibling->right->color == BLACK)) {
+                    sibling->color = RED;
+                    if (parent->color == RED) {
+                        parent->color = BLACK;
+                        return; // Done
+                    }
+		    x = parent; // Move DB up (Case 3c)
+                } else {
+                    // Case 5: Sibling's far child is black, near is red
+                    if (!sibling->right || sibling->right->color == BLACK) {
+                        if (sibling->left) sibling->left->color = BLACK;
+                        sibling->color = RED;
+                        rotateRight(sibling);
+                        sibling = parent->right;
+                    }
+                    // Case 6: Sibling's far child is red
+                    sibling->color = parent->color;
+                    parent->color = BLACK;
+                    if (sibling->right) sibling->right->color = BLACK;
+                    rotateLeft(parent);
+                    return;
+                }
+ } else { // Symmetric for right side
+                if (sibling && sibling->color == RED) {
+                    sibling->color = BLACK;
+                    parent->color = RED;
+                    rotateRight(parent);
+                    sibling = parent->left;
+                }
+
+                if ((!sibling->left || sibling->left->color == BLACK) &&
+                    (!sibling->right || sibling->right->color == BLACK)) {
+                    sibling->color = RED;
+                    if (parent->color == RED) {
+                        parent->color = BLACK;
+                        return;
+                    }
+                    x = parent;
+                } else {
+                    if (!sibling->left || sibling->left->color == BLACK) {
+                        if (sibling->right) sibling->right->color = BLACK;
+                        sibling->color = RED;
+                        rotateLeft(sibling);
+                        sibling = parent->left;
+                    }
+                    sibling->color = parent->color;
+                    parent->color = BLACK;
+                    if (sibling->left) sibling->left->color = BLACK;
+                    rotateRight(parent);
+                    return;
+                }
+            }
+        }
+        if (x) x->color = BLACK;
+    }
+  
+  
     // Recursive helper for visual printing
     void printHelper(Node* n, int space) {
         if (n == nullptr) return;
@@ -170,7 +257,6 @@ bool search(int key) {
         deleteNode(z);
         cout << "Value " << data << " removed." << endl;
     }
-
 
 
 int main() {
