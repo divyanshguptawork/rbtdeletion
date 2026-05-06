@@ -153,6 +153,25 @@ bool search(int key) {
             else current = current->right;
         }
         return false;
+}
+
+    void remove(int data) {
+        Node* z = root;
+        while (z != nullptr) {
+            if (data == z->data) break;
+            if (data < z->data) z = z->left;
+            else z = z->right;
+        }
+
+        if (z == nullptr) {
+            cout << "Value " << data << " not found in tree." << endl;
+            return;
+        }
+        deleteNode(z);
+        cout << "Value " << data << " removed." << endl;
+    }
+
+
 
 int main() {
     RedBlackTree rbt;
